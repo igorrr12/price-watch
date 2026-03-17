@@ -49,7 +49,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Failed to load trackers." }, { status: 500 });
   }
 
-  const rows = (trackers ?? []).filter((t) => t.product?.id && t.product?.url);
+  const rows = ((trackers as any[]) ?? [])
+    .map((t) => ({
+      ...t,
+      product: Array.isArray(t.product) ? t.product[0] : t.product,
+    }))
+    .filter((t) => t.product?.id && t.product?.url);
 
   // group trackers by product_id to scrape each product once
   const byProduct = new Map<
