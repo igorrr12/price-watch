@@ -3,14 +3,15 @@ import { createSupabaseServerClient } from "@/lib/supabaseServer";
 
 export async function GET(
   _req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const supabase = await createSupabaseServerClient();
+  const resolvedParams = await params;
 
   const { data: product, error: pErr } = await supabase
     .from("products")
     .select("id, url, domain, retailer, name, image_url, currency, last_price, last_checked_at")
-    .eq("id", params.id)
+    .eq("id", resolvedParams.id)
     .single();
 
   if (pErr) {
@@ -20,7 +21,7 @@ export async function GET(
   const { data: points, error: ppErr } = await supabase
     .from("price_points")
     .select("created_at, price")
-    .eq("product_id", params.id)
+    .eq("product_id", resolvedParams.id)
     .order("created_at", { ascending: true })
     .limit(120);
 
