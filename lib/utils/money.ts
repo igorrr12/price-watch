@@ -11,13 +11,17 @@ const SYMBOL_TO_CURRENCY: Record<string, string> = {
   "₩": "KRW",
   "₹": "INR",
   "zł": "PLN",
-  "kr": "SEK" // best-effort; could be NOK/DKK depending on domain/locale
+  "PLN": "PLN",
+  "kr": "SEK",
+  "sek": "SEK",
+  "nok": "NOK",
+  "dkk": "DKK",
 };
 
 export function parsePriceText(input: string): Money | null {
   const raw = input
+    .replace(/[\u00A0\u1680​\u180e\u2000-\u200a\u202f\u205f\u3000]/g, " ") // normalize all types of spaces
     .replace(/\s+/g, " ")
-    .replace(/[\u00A0]/g, " ")
     .trim();
   if (!raw) return null;
 
@@ -27,6 +31,20 @@ export function parsePriceText(input: string): Money | null {
     if (raw.includes(sym)) {
       currency = SYMBOL_TO_CURRENCY[sym];
       break;
+    }
+  }
+
+  // detect ISO currency code (e.g. "PLN 147.86" or "147.86 EUR")
+  if (!currency) {
+    const isoMatch = raw.match(/\b([A-Z]{3})\b/);
+    if (isoMatch) {
+      const known = [
+        "USD", "EUR", "GBP", "PLN", "CAD", "AUD", "JPY",
+        "SEK", "NOK", "DKK", "CHF", "CZK", "HUF", "RON"
+      ];
+      if (known.includes(isoMatch[1])) {
+        currency = isoMatch[1];
+      }
     }
   }
 

@@ -2,18 +2,10 @@ import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
 import { PriceLineChart } from "@/components/PriceLineChart";
 import { AdUnit } from "@/components/AdSense";
+import { formatPrice } from "@/lib/utils/format";
+import { ConvertedPrice } from "@/components/ConvertedPrice";
 
 type PricePoint = { created_at: string; price: number };
-
-function fmt(currency: string | null, amount: number | null) {
-  if (amount == null) return "—";
-  try {
-    if (currency) {
-      return new Intl.NumberFormat(undefined, { style: "currency", currency }).format(amount);
-    }
-  } catch {}
-  return currency ? `${currency} ${amount.toFixed(2)}` : amount.toFixed(2);
-}
 
 export default async function TrackPage({ params }: { params: Promise<{ id: string }> }) {
   const supabase = await createSupabaseServerClient();
@@ -30,7 +22,7 @@ export default async function TrackPage({ params }: { params: Promise<{ id: stri
       <div className="rounded-xl border-2 border-charcoal bg-white p-8 shadow-retro">
         <h2 className="text-2xl font-extrabold uppercase tracking-tight text-charcoal">Not found</h2>
         <p className="mt-2 text-sm font-medium text-charcoal/80">
-          This product doesn’t exist.
+          This product doesn't exist.
         </p>
         <Link href="/dashboard" className="mt-6 inline-flex text-sm font-bold uppercase text-brand hover:underline">
           Back to dashboard
@@ -46,6 +38,23 @@ export default async function TrackPage({ params }: { params: Promise<{ id: stri
     .order("created_at", { ascending: true })
     .limit(120);
 
+  // Fetch the user's tracker to show their target price and preferred currency
+  const { data: { user } } = await supabase.auth.getUser();
+  let tracker: { target_price: number; preferred_currency: string | null } | null = null;
+  if (user) {
+    const { data: t } = await supabase
+      .from("trackers")
+      .select("target_price, preferred_currency")
+      .eq("product_id", id)
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    tracker = t;
+  }
+
+  const displayCurrency = tracker?.preferred_currency ?? product.currency;
+
   return (
     <section>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -53,8 +62,27 @@ export default async function TrackPage({ params }: { params: Promise<{ id: stri
           <h1 className="text-3xl font-extrabold uppercase tracking-tight text-charcoal">
             {product.name ?? "Tracked product"}
           </h1>
-          <div className="mt-2 text-base font-bold text-charcoal/80 uppercase tracking-widest">
-            Current: <span className="text-xl font-extrabold text-charcoal">{fmt(product.currency, product.last_price)}</span>
+          <div className="mt-3 flex flex-wrap gap-6">
+            <div>
+              <div className="text-xs font-bold uppercase tracking-widest text-charcoal/60">Current Price</div>
+              <ConvertedPrice
+                amount={product.last_price}
+                fromCurrency={product.currency}
+                toCurrency={displayCurrency}
+                className="text-2xl font-extrabold text-charcoal"
+              />
+            </div>
+            {tracker && (
+              <div>
+                <div className="text-xs font-bold uppercase tracking-widest text-charcoal/60">Your Target ({displayCurrency})</div>
+                <ConvertedPrice
+                  amount={tracker.target_price}
+                  fromCurrency={product.currency}
+                  toCurrency={displayCurrency}
+                  className="text-2xl font-extrabold text-brand"
+                />
+              </div>
+            )}
           </div>
         </div>
         <Link
@@ -68,13 +96,23 @@ export default async function TrackPage({ params }: { params: Promise<{ id: stri
       <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
         <div className="space-y-6">
           <div className="rounded-xl border-2 border-charcoal bg-white p-6 shadow-retro">
-            <PriceLineChart points={(points ?? []) as unknown as PricePoint[]} />
+            <PriceLineChart points={(points ?? []) as unknown as PricePoint[]} currency={product.currency} />
           </div>
         </div>
 
         <aside className="h-max rounded-xl border-2 border-charcoal bg-white p-6 shadow-retro">
           <div className="text-xl font-extrabold uppercase tracking-tight text-charcoal">Product</div>
           <div className="mt-4 space-y-4 text-sm text-charcoal">
+            <div>
+              <div className="text-xs font-bold uppercase tracking-widest text-charcoal/60">Scraped Currency</div>
+              <div className="text-base font-medium">{product.currency ?? "—"}</div>
+            </div>
+            {tracker?.preferred_currency && tracker.preferred_currency !== product.currency && (
+              <div>
+                <div className="text-xs font-bold uppercase tracking-widest text-charcoal/60">Display Currency</div>
+                <div className="text-base font-medium">{tracker.preferred_currency}</div>
+              </div>
+            )}
             <div>
               <div className="text-xs font-bold uppercase tracking-widest text-charcoal/60">Retailer</div>
               <div className="text-base font-medium">{product.retailer}</div>
@@ -103,4 +141,3 @@ export default async function TrackPage({ params }: { params: Promise<{ id: stri
     </section>
   );
 }
-

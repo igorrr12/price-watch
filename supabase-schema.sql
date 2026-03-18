@@ -33,7 +33,8 @@ create table if not exists public.trackers (
   active boolean not null default true,
   notify_on_first_drop boolean not null default true,
   consecutive_failures integer not null default 0,
-  paused_reason text
+  paused_reason text,
+  preferred_currency text
 );
 
 create index if not exists trackers_email_idx on public.trackers (email);

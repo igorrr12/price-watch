@@ -3,6 +3,8 @@ import { createSupabaseServerClient } from "@/lib/supabaseServer";
 import { AdUnit } from "@/components/AdSense";
 import { linkAnonymousTrackersToUser } from "@/lib/linkTrackers";
 import { deleteTracker, renewTracker } from "./actions";
+import { formatPrice } from "@/lib/utils/format";
+import { ConvertedPrice } from "@/components/ConvertedPrice";
 
 type TrackerRow = {
   id: string;
@@ -11,6 +13,7 @@ type TrackerRow = {
   active: boolean;
   consecutive_failures: number;
   paused_reason: string | null;
+  preferred_currency: string | null;
   created_at: string;
   product: {
     id: string;
@@ -23,16 +26,6 @@ type TrackerRow = {
     last_price: number | null;
   };
 };
-
-function fmt(currency: string | null, amount: number | null) {
-  if (amount == null) return "—";
-  try {
-    if (currency) {
-      return new Intl.NumberFormat(undefined, { style: "currency", currency }).format(amount);
-    }
-  } catch {}
-  return currency ? `${currency} ${amount.toFixed(2)}` : amount.toFixed(2);
-}
 
 export default async function DashboardPage() {
   const supabase = await createSupabaseServerClient();
@@ -73,6 +66,7 @@ export default async function DashboardPage() {
       active,
       consecutive_failures,
       paused_reason,
+      preferred_currency,
       created_at,
       product:products (
         id,
@@ -130,20 +124,23 @@ export default async function DashboardPage() {
         <div className="grid gap-6">
           <AdUnit slot={process.env.NEXT_PUBLIC_ADSENSE_DASHBOARD_SLOT ?? ""} className="rounded-xl border-2 border-charcoal bg-white p-4 shadow-retro" />
           {trackers.map((t) => {
-            const cur = fmt(t.product.currency, t.product.last_price);
-            const tgt = fmt(t.product.currency, Number(t.target_price));
+            // preferred_currency is what the user wants to see; product.currency is the scraped native currency
+            const displayCurrency = t.preferred_currency ?? t.product.currency;
+
             let status = "Above target";
             if (t.product.last_price != null && Number(t.target_price) >= Number(t.product.last_price)) {
               status = "At/below target";
             }
             if (!t.active) {
-              status = t.paused_reason === "target_reached" ? "Email sent!" : "Paused";
+              // Green "Alert sent!" if the price is still at/below target or we sent an email
+              const priceStillLow = t.product.last_price != null && Number(t.target_price) >= Number(t.product.last_price);
+              status = (t.paused_reason === "target_reached" || priceStillLow) ? "Alert sent!" : "Paused";
             }
 
             const statusClass =
               status === "At/below target"
                 ? "bg-emerald-300 text-charcoal"
-                : status === "Email sent!"
+                : status === "Alert sent!"
                 ? "bg-emerald-400 text-white"
                 : status === "Paused"
                 ? "bg-amber-300 text-charcoal"
@@ -171,8 +168,17 @@ export default async function DashboardPage() {
                         {t.product.name ?? "Tracked product"}
                       </h3>
                     </Link>
-                    <div className="mt-2 text-sm font-medium text-charcoal/70">
-                      {t.product.domain}
+                    <div className="mt-1 flex flex-wrap gap-4 text-sm font-medium text-charcoal/70">
+                      <span>{t.product.domain}</span>
+                      <span>
+                        Now:{" "}
+                        <ConvertedPrice
+                          amount={t.product.last_price}
+                          fromCurrency={t.product.currency}
+                          toCurrency={displayCurrency}
+                          className="font-bold text-charcoal"
+                        />
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -180,8 +186,13 @@ export default async function DashboardPage() {
                 <div className="flex shrink-0 flex-col items-end gap-3 sm:gap-4">
                   <div className="text-right flex flex-row sm:flex-col items-center sm:items-end gap-4 sm:gap-0">
                     <div className="hidden sm:block">
-                      <div className="text-sm font-medium uppercase tracking-widest text-charcoal/60">Target</div>
-                      <div className="text-xl font-extrabold text-charcoal">{tgt}</div>
+                      <div className="text-sm font-medium uppercase tracking-widest text-charcoal/60">Target ({displayCurrency})</div>
+                      <ConvertedPrice
+                        amount={t.target_price}
+                        fromCurrency={t.product.currency}
+                        toCurrency={displayCurrency}
+                        className="text-xl font-extrabold text-charcoal"
+                      />
                     </div>
                     <span className={`inline-flex rounded-sm border-2 border-charcoal px-3 py-1 text-xs font-bold uppercase tracking-wide shadow-retro-sm ${statusClass}`}>
                       {status}
@@ -217,4 +228,3 @@ export default async function DashboardPage() {
     </section>
   );
 }
-

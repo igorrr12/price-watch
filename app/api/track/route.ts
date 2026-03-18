@@ -9,10 +9,26 @@ type TrackRequest = {
   url: string;
   email: string;
   targetPrice: number;
+  preferredCurrency?: string;
 };
 
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim().toLowerCase());
+}
+
+async function convertCurrency(amount: number, from: string, to: string): Promise<number> {
+  if (from.toUpperCase() === to.toUpperCase()) return amount;
+  try {
+    const res = await fetch(`https://open.er-api.com/v6/latest/${from.toUpperCase()}`);
+    if (!res.ok) throw new Error("Rate fetch failed");
+    const data = await res.json() as { rates: Record<string, number> };
+    const rate = data.rates[to.toUpperCase()];
+    if (!rate) throw new Error(`No rate for ${to}`);
+    return Math.round(amount * rate * 100) / 100;
+  } catch (e) {
+    console.warn("Currency conversion failed, using original amount:", e);
+    return amount;
+  }
 }
 
 export async function POST(req: Request) {
@@ -26,6 +42,7 @@ export async function POST(req: Request) {
   const url = (body.url ?? "").trim();
   const email = (body.email ?? "").trim().toLowerCase();
   const targetPrice = Number(body.targetPrice);
+  const preferredCurrency = (body.preferredCurrency ?? "").trim().toUpperCase() || null;
 
   if (!url || !url.startsWith("http")) {
     return NextResponse.json({ error: "Please provide a valid URL." }, { status: 400 });
@@ -59,6 +76,31 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Scrape failed." }, { status: 500 });
   }
 
+  let scrapedCurrency = scraped.currency?.toUpperCase() ?? null;
+
+  // If scraper failed to find currency, try guessing by domain as a secondary fallback
+  if (!scrapedCurrency) {
+    if (domain.endsWith(".pl")) scrapedCurrency = "PLN";
+    else if (domain.endsWith(".co.uk")) scrapedCurrency = "GBP";
+    else if (domain.endsWith(".de") || domain.endsWith(".fr") || domain.endsWith(".it") || domain.endsWith(".es")) scrapedCurrency = "EUR";
+    else if (domain.endsWith(".ca")) scrapedCurrency = "CAD";
+    else if (domain.endsWith(".se")) scrapedCurrency = "SEK";
+    else if (domain.endsWith(".com")) scrapedCurrency = "USD"; // Default for .com
+  }
+
+  const finalCurrency = scrapedCurrency; // The actual currency of the product on the retailer's site
+  const finalPrice = scraped.price;       // The numeric value seen by the scraper
+
+  let finalTargetPrice = targetPrice;
+  // We only convert the target price if we know BOTH currencies and they differ.
+  // If we don't know the scraped currency yet, we store the target as-provided by the user
+  // and hope the next scrape (from a different datacenter/proxy) identifies it.
+  if (preferredCurrency && scrapedCurrency && preferredCurrency !== scrapedCurrency) {
+    // User typed target in preferred (e.g. USD) but product is in scraped (e.g. PLN)
+    // Convert target USD -> PLN so we can compare apples-to-apples in the DB
+    finalTargetPrice = await convertCurrency(targetPrice, preferredCurrency, scrapedCurrency);
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!supabaseUrl || !serviceKey) {
@@ -87,8 +129,8 @@ export async function POST(req: Request) {
     retailer,
     name: scraped.name,
     image_url: scraped.imageUrl,
-    currency: scraped.currency,
-    last_price: scraped.price,
+    currency: finalCurrency,
+    last_price: finalPrice,
     last_checked_at: new Date().toISOString()
   };
 
@@ -125,11 +167,12 @@ export async function POST(req: Request) {
       product_id: product.id,
       user_id: user?.id ?? null,
       email,
-      target_price: targetPrice,
+      target_price: finalTargetPrice,    // stored in product's native scraped currency for cron comparison
+      preferred_currency: preferredCurrency ?? finalCurrency, // what the user wants to see prices in
       active: true,
       consecutive_failures: 0
     })
-    .select("id, product_id, email, target_price, active")
+    .select("id, product_id, email, target_price, active, preferred_currency")
     .single();
   if (trackerErr) {
     console.error("TRACKER INSERT ERROR: ", trackerErr);
@@ -152,7 +195,7 @@ export async function POST(req: Request) {
   }
 
   // If the price is already at or below target, trigger the alert immediately!
-  if (product.last_price != null && targetPrice >= product.last_price) {
+  if (product.last_price != null && finalTargetPrice >= product.last_price) {
     try {
       await sendPriceAlertEmail({
         to: email,

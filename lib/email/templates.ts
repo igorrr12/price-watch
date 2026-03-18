@@ -1,3 +1,5 @@
+import { formatPrice } from "@/lib/utils/format";
+
 type PriceAlertTemplateParams = {
   productName: string;
   productUrl: string;
@@ -13,20 +15,6 @@ type TrackingPausedTemplateParams = {
   productImageUrl: string | null;
 };
 
-function fmtPrice(currency: string | null, amount: number) {
-  try {
-    if (currency) {
-      return new Intl.NumberFormat(undefined, {
-        style: "currency",
-        currency
-      }).format(amount);
-    }
-  } catch {
-    // fall through
-  }
-  return currency ? `${currency} ${amount.toFixed(2)}` : amount.toFixed(2);
-}
-
 function adBlockHtml() {
   const label = "Sponsored";
   const href = process.env.EMAIL_AD_URL ?? "https://example.com";
@@ -38,15 +26,15 @@ function adBlockHtml() {
       ${
         img
           ? `<a href="${href}" style="display:block;text-decoration:none"><img src="${img}" alt="${label}" style="width:100%;max-width:520px;border-radius:10px;display:block"/></a>`
-          : `<a href="${href}" style="font-size:13px;color:#2563eb;text-decoration:none">Check today’s deals →</a>`
+          : `<a href="${href}" style="font-size:13px;color:#2563eb;text-decoration:none">Check today's deals →</a>`
       }
     </div>
   `;
 }
 
 export function priceAlertEmailHtml(p: PriceAlertTemplateParams) {
-  const current = fmtPrice(p.currency, p.currentPrice);
-  const target = fmtPrice(p.currency, p.targetPrice);
+  const current = formatPrice(p.currency, p.currentPrice);
+  const target = formatPrice(p.currency, p.targetPrice);
 
   return `
   <div style="font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; line-height:1.4; color:#0f172a; padding:24px;">
@@ -70,7 +58,7 @@ export function priceAlertEmailHtml(p: PriceAlertTemplateParams) {
         </a>
         ${adBlockHtml()}
         <div style="margin-top:16px;font-size:11px;color:#64748b;">
-          You’re receiving this because you asked Price Watch to track this product.
+          You're receiving this because you asked Price Watch to track this product.
         </div>
       </div>
     </div>
@@ -85,7 +73,7 @@ export function trackingPausedEmailHtml(p: TrackingPausedTemplateParams) {
         <div style="font-size:12px;color:#64748b;margin-bottom:8px;">Price Watch update</div>
         <h1 style="margin:0;font-size:18px;">Tracking paused</h1>
         <p style="margin:10px 0 0 0;font-size:13px;color:#334155;">
-          We couldn’t scrape this product 3 times in a row, so tracking has been paused.
+          We couldn't scrape this product 3 times in a row, so tracking has been paused.
         </p>
       </div>
       ${
@@ -106,4 +94,3 @@ export function trackingPausedEmailHtml(p: TrackingPausedTemplateParams) {
     </div>
   </div>`;
 }
-

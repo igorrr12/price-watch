@@ -5,10 +5,26 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 
+const COMMON_CURRENCIES = [
+  { code: "USD", label: "USD – US Dollar" },
+  { code: "EUR", label: "EUR – Euro" },
+  { code: "GBP", label: "GBP – British Pound" },
+  { code: "PLN", label: "PLN – Polish Złoty" },
+  { code: "CAD", label: "CAD – Canadian Dollar" },
+  { code: "AUD", label: "AUD – Australian Dollar" },
+  { code: "JPY", label: "JPY – Japanese Yen" },
+  { code: "SEK", label: "SEK – Swedish Krona" },
+  { code: "NOK", label: "NOK – Norwegian Krone" },
+  { code: "CHF", label: "CHF – Swiss Franc" },
+  { code: "DKK", label: "DKK – Danish Krone" },
+  { code: "CZK", label: "CZK – Czech Koruna" },
+];
+
 export default function DashboardAddPage() {
   const router = useRouter();
   const [url, setUrl] = useState("");
   const [targetPrice, setTargetPrice] = useState("");
+  const [currency, setCurrency] = useState("USD");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,7 +55,8 @@ export default function DashboardAddPage() {
         body: JSON.stringify({
           url,
           email: user.email,
-          targetPrice: Number(targetPrice)
+          targetPrice: Number(targetPrice),
+          preferredCurrency: currency,
         })
       });
 
@@ -93,21 +110,45 @@ export default function DashboardAddPage() {
               disabled={loading}
             />
           </div>
-          <div>
-            <label className="mb-2 block text-sm font-bold uppercase tracking-wide text-charcoal">
-              Target price
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              required
-              placeholder="e.g. 49.99"
-              className="w-full rounded-none border-2 border-charcoal bg-cream px-3 py-3 font-medium text-charcoal shadow-retro-sm transition-all focus:translate-x-1 focus:translate-y-1 focus:shadow-none focus:outline-none"
-              value={targetPrice}
-              onChange={(e) => setTargetPrice(e.target.value)}
-              disabled={loading}
-            />
+
+          <div className="flex gap-3">
+            <div className="flex-1">
+              <label className="mb-2 block text-sm font-bold uppercase tracking-wide text-charcoal">
+                Target price
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                required
+                placeholder="e.g. 49.99"
+                className="w-full rounded-none border-2 border-charcoal bg-cream px-3 py-3 font-medium text-charcoal shadow-retro-sm transition-all focus:translate-x-1 focus:translate-y-1 focus:shadow-none focus:outline-none"
+                value={targetPrice}
+                onChange={(e) => setTargetPrice(e.target.value)}
+                disabled={loading}
+              />
+            </div>
+            <div className="w-48">
+              <label className="mb-2 block text-sm font-bold uppercase tracking-wide text-charcoal">
+                Currency
+              </label>
+              <select
+                className="w-full rounded-none border-2 border-charcoal bg-cream px-3 py-3 font-medium text-charcoal shadow-retro-sm transition-all focus:translate-x-1 focus:translate-y-1 focus:shadow-none focus:outline-none"
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+                disabled={loading}
+              >
+                {COMMON_CURRENCIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
+
+          <p className="text-xs font-medium text-charcoal/60">
+            If the product is priced in a different currency, your target and the scraped price will be converted automatically.
+          </p>
           
           {error && <p className="border-2 border-charcoal bg-rose-200 px-4 py-2 font-bold text-charcoal">{error}</p>}
           

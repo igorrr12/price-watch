@@ -7,7 +7,13 @@ function toNumber(x: unknown) {
   return Number.isFinite(n) ? n : 0;
 }
 
-export function PriceLineChart({ points }: { points: Point[] }) {
+export function PriceLineChart({ points, currency }: { points: Point[]; currency?: string | null }) {
+  function fmt(v: number) {
+    try {
+      if (currency) return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(v);
+    } catch {}
+    return `${currency ? currency + " " : ""}${v.toFixed(2)}`;
+  }
   const w = 720;
   const h = 220;
   const pad = 16;
@@ -45,7 +51,7 @@ export function PriceLineChart({ points }: { points: Point[] }) {
       <div className="mb-2 flex items-baseline justify-between">
         <div className="text-sm font-semibold text-slate-800">Price trend</div>
         <div className="text-xs text-slate-500">
-          Min {minV.toFixed(2)} • Max {maxV.toFixed(2)}
+          Min {fmt(minV)} • Max {fmt(maxV)}
         </div>
       </div>
       <svg
