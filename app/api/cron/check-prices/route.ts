@@ -189,7 +189,7 @@ export async function POST(req: Request) {
           // Disable the tracker so we don't spam them on future cron runs!
           await supabase
             .from("trackers")
-            .update({ active: false })
+            .update({ active: false, paused_reason: "target_reached" })
             .eq("id", t.id);
         })
       );

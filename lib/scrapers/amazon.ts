@@ -20,6 +20,18 @@ export async function scrapeAmazon(url: string): Promise<ScrapeResult> {
   let price: number | null = null;
   let currency: string | null = ogCurrency ?? null;
 
+  if (!currency) {
+    if (url.includes("amazon.com")) currency = "USD";
+    else if (url.includes("amazon.co.uk")) currency = "GBP";
+    else if (url.includes("amazon.pl")) currency = "PLN";
+    else if (url.includes("amazon.de")) currency = "EUR";
+    else if (url.includes("amazon.ca")) currency = "CAD";
+    else if (url.includes("amazon.fr")) currency = "EUR";
+    else if (url.includes("amazon.it")) currency = "EUR";
+    else if (url.includes("amazon.es")) currency = "EUR";
+    else if (url.includes("amazon.se")) currency = "SEK";
+  }
+
   if (ogAmount) {
     const p = Number.parseFloat(ogAmount.replace(/[^\d.]/g, ""));
     if (Number.isFinite(p)) price = p;

@@ -24,7 +24,7 @@ function fmtPrice(currency: string | null, amount: number) {
   } catch {
     // fall through
   }
-  return amount.toFixed(2);
+  return currency ? `${currency} ${amount.toFixed(2)}` : amount.toFixed(2);
 }
 
 function adBlockHtml() {

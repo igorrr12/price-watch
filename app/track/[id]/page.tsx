@@ -12,7 +12,7 @@ function fmt(currency: string | null, amount: number | null) {
       return new Intl.NumberFormat(undefined, { style: "currency", currency }).format(amount);
     }
   } catch {}
-  return amount.toFixed(2);
+  return currency ? `${currency} ${amount.toFixed(2)}` : amount.toFixed(2);
 }
 
 export default async function TrackPage({ params }: { params: Promise<{ id: string }> }) {

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
 import { AdUnit } from "@/components/AdSense";
 import { linkAnonymousTrackersToUser } from "@/lib/linkTrackers";
+import { deleteTracker, renewTracker } from "./actions";
 
 type TrackerRow = {
   id: string;
@@ -30,7 +31,7 @@ function fmt(currency: string | null, amount: number | null) {
       return new Intl.NumberFormat(undefined, { style: "currency", currency }).format(amount);
     }
   } catch {}
-  return amount.toFixed(2);
+  return currency ? `${currency} ${amount.toFixed(2)}` : amount.toFixed(2);
 }
 
 export default async function DashboardPage() {
@@ -131,15 +132,19 @@ export default async function DashboardPage() {
           {trackers.map((t) => {
             const cur = fmt(t.product.currency, t.product.last_price);
             const tgt = fmt(t.product.currency, Number(t.target_price));
-            const status = !t.active
-              ? "Paused"
-              : t.product.last_price != null && Number(t.target_price) >= Number(t.product.last_price)
-              ? "At/below target"
-              : "Above target";
+            let status = "Above target";
+            if (t.product.last_price != null && Number(t.target_price) >= Number(t.product.last_price)) {
+              status = "At/below target";
+            }
+            if (!t.active) {
+              status = t.paused_reason === "target_reached" ? "Email sent!" : "Paused";
+            }
 
             const statusClass =
               status === "At/below target"
                 ? "bg-emerald-300 text-charcoal"
+                : status === "Email sent!"
+                ? "bg-emerald-400 text-white"
                 : status === "Paused"
                 ? "bg-amber-300 text-charcoal"
                 : "bg-cream text-charcoal";
@@ -172,20 +177,37 @@ export default async function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="flex shrink-0 flex-row items-center gap-6 sm:flex-col sm:items-end sm:gap-4">
-                  <div className="text-left sm:text-right">
-                    <div className="text-sm font-medium uppercase tracking-widest text-charcoal/60">Target</div>
-                    <div className="text-xl font-extrabold text-charcoal">{tgt}</div>
+                <div className="flex shrink-0 flex-col items-end gap-3 sm:gap-4">
+                  <div className="text-right flex flex-row sm:flex-col items-center sm:items-end gap-4 sm:gap-0">
+                    <div className="hidden sm:block">
+                      <div className="text-sm font-medium uppercase tracking-widest text-charcoal/60">Target</div>
+                      <div className="text-xl font-extrabold text-charcoal">{tgt}</div>
+                    </div>
+                    <span className={`inline-flex rounded-sm border-2 border-charcoal px-3 py-1 text-xs font-bold uppercase tracking-wide shadow-retro-sm ${statusClass}`}>
+                      {status}
+                    </span>
                   </div>
-                  <span className={`inline-flex rounded-sm border-2 border-charcoal px-3 py-1 text-sm font-bold uppercase tracking-wide shadow-retro-sm ${statusClass}`}>
-                    {status}
-                  </span>
-                  <Link
-                    href={`/track/${t.product.id}`}
-                    className="inline-flex border-2 border-charcoal bg-white px-4 py-2 font-bold uppercase tracking-wider text-charcoal shadow-retro-sm transition-all hover:bg-cream active:translate-x-1 active:translate-y-1 active:shadow-none"
-                  >
-                    View
-                  </Link>
+                  
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    <form action={deleteTracker.bind(null, t.id)}>
+                      <button type="submit" className="border-2 border-charcoal bg-charcoal px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white shadow-[2px_2px_0px_0px_#e83e8c] transition-all hover:bg-charcoal/90 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
+                        Delete
+                      </button>
+                    </form>
+                    {!t.active && (
+                      <form action={renewTracker.bind(null, t.id)}>
+                        <button type="submit" className="border-2 border-charcoal bg-charcoal px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white shadow-[2px_2px_0px_0px_#e83e8c] transition-all hover:bg-charcoal/90 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
+                          Renew
+                        </button>
+                      </form>
+                    )}
+                    <Link
+                      href={`/track/${t.product.id}`}
+                      className="border-2 border-charcoal bg-charcoal px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white shadow-[2px_2px_0px_0px_#e83e8c] transition-all hover:bg-charcoal/90 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                    >
+                      View
+                    </Link>
+                  </div>
                 </div>
               </div>
             );
