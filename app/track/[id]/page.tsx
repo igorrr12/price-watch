@@ -4,6 +4,23 @@ import { PriceLineChart } from "@/components/PriceLineChart";
 import { AdUnit } from "@/components/AdSense";
 import { formatPrice } from "@/lib/utils/format";
 import { ConvertedPrice } from "@/components/ConvertedPrice";
+import type { Metadata } from "next";
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const supabase = await createSupabaseServerClient();
+  const { id } = await params;
+  const { data } = await supabase.from("products").select("name, domain").eq("id", id).maybeSingle();
+  
+  const name = data?.name ?? "Price History";
+  return {
+    title: `${name} Price History & Tracker`,
+    description: `Track the price history of ${name} on ${data?.domain}. Get instant alerts when the price drops below your target.`,
+    openGraph: {
+      title: `${name} Price History`,
+      description: `Monitor price changes for ${name}.`,
+    }
+  };
+}
 
 type PricePoint = { created_at: string; price: number };
 
@@ -55,8 +72,27 @@ export default async function TrackPage({ params }: { params: Promise<{ id: stri
 
   const displayCurrency = tracker?.preferred_currency ?? product.currency;
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.name,
+    "image": product.image_url,
+    "description": `Price tracking and alerts for ${product.name} on ${product.domain}.`,
+    "offers": {
+      "@type": "Offer",
+      "price": product.last_price,
+      "priceCurrency": product.currency,
+      "url": product.url,
+      "availability": "https://schema.org/InStock" // Best effort, most tracked items are in stock
+    }
+  };
+
   return (
     <section>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-3xl font-extrabold uppercase tracking-tight text-charcoal">

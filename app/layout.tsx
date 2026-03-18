@@ -6,8 +6,28 @@ import { createSupabaseServerClient } from "@/lib/supabaseServer";
 import { Logo } from "@/components/Logo";
 
 export const metadata = {
-  title: "Price Watch",
-  description: "Track product prices and get alerts when they drop."
+  title: {
+    default: "Price Watch - Smart AI Price Tracker",
+    template: "%s | Price Watch"
+  },
+  description: "Track product prices on Amazon, ASOS, and Zara. Get instant AI price drop alerts via email. Save money today with Price Watch.",
+  keywords: ["price tracker", "amazon price alerts", "price drop monitor", "save money", "shopping tracker"],
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://pricewatch.top",
+    siteName: "Price Watch",
+    images: [{
+      url: "/og-image.png", // Assuming a generic OG image exists or will be added
+      width: 1200,
+      height: 630,
+    }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Price Watch - Smart AI Price Tracker",
+    description: "Track prices and save money with instant alerts.",
+  }
 };
 
 export const dynamic = "force-dynamic";
