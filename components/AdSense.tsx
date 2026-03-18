@@ -8,23 +8,20 @@ declare global {
   }
 }
 
+import Script from "next/script";
+
 export function AdSenseScript() {
   const client = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
+  if (!client) return null;
 
-  useEffect(() => {
-    if (!client) return;
-    const existing = document.querySelector(`script[data-adsense="pw"]`);
-    if (existing) return;
-
-    const s = document.createElement("script");
-    s.async = true;
-    s.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${client}`;
-    s.crossOrigin = "anonymous";
-    s.dataset.adsense = "pw";
-    document.head.appendChild(s);
-  }, [client]);
-
-  return null;
+  return (
+    <Script
+      async
+      src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${client}`}
+      crossOrigin="anonymous"
+      strategy="afterInteractive"
+    />
+  );
 }
 
 export function AdUnit({

@@ -163,6 +163,10 @@ export default async function TrackPage({ params }: { params: Promise<{ id: stri
                 {product.last_checked_at ? new Date(product.last_checked_at).toLocaleString() : "—"}
               </div>
             </div>
+            <AdUnit 
+              slot={process.env.NEXT_PUBLIC_ADSENSE_TRACK_SLOT ?? ""} 
+              className="mt-4 overflow-hidden rounded-lg border border-charcoal/10"
+            />
           </div>
           <a
             href={product.url}

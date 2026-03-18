@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { AdUnit } from "@/components/AdSense";
 
 export default function HomePage() {
   const router = useRouter();
@@ -126,6 +127,13 @@ export default function HomePage() {
             an account and see your dashboard.
           </p>
         </form>
+      </div>
+
+      <div className="mt-12">
+        <AdUnit 
+          slot={process.env.NEXT_PUBLIC_ADSENSE_HOME_SLOT ?? ""} 
+          className="rounded-xl border-2 border-charcoal bg-white p-4 shadow-retro"
+        />
       </div>
     </section>
   );
