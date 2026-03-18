@@ -40,8 +40,10 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const { data: { user } } = await supabase.auth.getUser();
   return (
     <html lang="en">
+      <head>
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7770398139421078" crossOrigin="anonymous" />
+      </head>
       <body className="font-sans min-h-screen flex flex-col bg-cream text-charcoal selection:bg-brand selection:text-white">
-        <AdSenseScript />
         <header className="border-b-2 border-charcoal bg-white px-4 py-1.5 shadow-retro-sm lg:px-8">
           <div className="mx-auto flex max-w-7xl items-center justify-between">
             <div className="flex items-center gap-4">
