@@ -27,6 +27,9 @@ export const metadata = {
     card: "summary_large_image",
     title: "Price Watch - Smart AI Price Tracker",
     description: "Track prices and save money with instant alerts.",
+  },
+  verification: {
+    google: "ZLUpdohjvys6G0-P7WnV9yZbZST_mkX-rceard7iZ6g"
   }
 };
 
