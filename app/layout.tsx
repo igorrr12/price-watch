@@ -4,6 +4,7 @@ import Link from "next/link";
 import { AdSenseScript } from "@/components/AdSense";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
 import { Logo } from "@/components/Logo";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata = {
   title: "Price Watch",
@@ -64,6 +65,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
             &copy; {new Date().getFullYear()} Price Watch.
           </div>
         </footer>
+        <Analytics />
       </body>
     </html>
   );
