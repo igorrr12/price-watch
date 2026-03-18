@@ -175,8 +175,8 @@ export async function POST(req: Request) {
 
     if (eligible.length > 0) {
       const results = await Promise.allSettled(
-        eligible.map((t) =>
-          sendPriceAlertEmail({
+        eligible.map(async (t) => {
+          await sendPriceAlertEmail({
             to: t.email,
             productName: scraped!.name,
             productUrl: productUrl,
@@ -184,8 +184,14 @@ export async function POST(req: Request) {
             currency: scraped!.currency,
             currentPrice: scraped!.price,
             targetPrice: Number(t.target_price)
-          })
-        )
+          });
+          
+          // Disable the tracker so we don't spam them on future cron runs!
+          await supabase
+            .from("trackers")
+            .update({ active: false })
+            .eq("id", t.id);
+        })
       );
       summary.alertsSent += results.filter((r) => r.status === "fulfilled").length;
     }

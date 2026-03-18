@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
 import { normalizeUrl, detectRetailer, getHostname } from "@/lib/utils/url";
 import { scrapeProduct, ScrapeError } from "@/lib/scrapers";
+import { sendPriceAlertEmail } from "@/lib/email/send";
 
 type TrackRequest = {
   url: string;
@@ -148,6 +149,31 @@ export async function POST(req: Request) {
       },
       { status: 400 }
     );
+  }
+
+  // If the price is already at or below target, trigger the alert immediately!
+  if (product.last_price != null && targetPrice >= product.last_price) {
+    try {
+      await sendPriceAlertEmail({
+        to: email,
+        productName: product.name,
+        productUrl: url,
+        productImageUrl: product.image_url,
+        currency: product.currency,
+        currentPrice: product.last_price,
+        targetPrice: targetPrice
+      });
+
+      // Disable the tracker so we don't spam them when the cron job runs
+      await supabase
+        .from("trackers")
+        .update({ active: false })
+        .eq("id", tracker.id);
+
+      tracker.active = false;
+    } catch (err) {
+      console.error("Immediate alert send failed:", err);
+    }
   }
 
   return NextResponse.json({

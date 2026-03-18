@@ -70,9 +70,6 @@ export default async function TrackPage({ params }: { params: Promise<{ id: stri
           <div className="rounded-xl border-2 border-charcoal bg-white p-6 shadow-retro">
             <PriceLineChart points={(points ?? []) as unknown as PricePoint[]} />
           </div>
-          <div className="rounded-xl border-2 border-charcoal bg-white p-6 font-medium text-charcoal shadow-retro">
-            <AdUnit slot={process.env.NEXT_PUBLIC_ADSENSE_TRACK_SLOT ?? ""} />
-          </div>
         </div>
 
         <aside className="h-max rounded-xl border-2 border-charcoal bg-white p-6 shadow-retro">
