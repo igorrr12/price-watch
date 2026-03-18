@@ -10,7 +10,7 @@ export const metadata = {
     default: "Price Watch - Reliable Price Tracker for Amazon, ASOS & Zara",
     template: "%s | Price Watch"
   },
-  description: "Track product prices on Amazon, ASOS, and Zara. Get instant price drop alerts via email. Save money today with Price Watch.",
+  description: "Save money on Amazon, ASOS, and Zara with Price Watch. Set your target price and get instant email alerts when prices drop. Simple and reliable price tracking.",
   keywords: ["price tracker", "amazon price alerts", "price drop monitor", "save money", "shopping tracker"],
   icons: {
     icon: "/icon.png",
@@ -30,7 +30,7 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Price Watch - Reliable Price Tracker",
-    description: "Track prices and save money with instant alerts.",
+    description: "Track prices and save money on Amazon, ASOS, and Zara with email alerts.",
     images: ["/logo.png"]
   },
   verification: {
