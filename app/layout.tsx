@@ -7,26 +7,31 @@ import { Logo } from "@/components/Logo";
 
 export const metadata = {
   title: {
-    default: "Price Watch - Smart AI Price Tracker",
+    default: "Price Watch - Reliable Price Tracker for Amazon, ASOS & Zara",
     template: "%s | Price Watch"
   },
-  description: "Track product prices on Amazon, ASOS, and Zara. Get instant AI price drop alerts via email. Save money today with Price Watch.",
+  description: "Track product prices on Amazon, ASOS, and Zara. Get instant price drop alerts via email. Save money today with Price Watch.",
   keywords: ["price tracker", "amazon price alerts", "price drop monitor", "save money", "shopping tracker"],
+  icons: {
+    icon: "/icon.png",
+    apple: "/apple-icon.png"
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "https://pricewatch.top",
     siteName: "Price Watch",
     images: [{
-      url: "/og-image.png", // Assuming a generic OG image exists or will be added
+      url: "/logo.png",
       width: 1200,
-      height: 630,
+      height: 1200,
     }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Price Watch - Smart AI Price Tracker",
+    title: "Price Watch - Reliable Price Tracker",
     description: "Track prices and save money with instant alerts.",
+    images: ["/logo.png"]
   },
   verification: {
     google: "ZLUpdohjvys6G0-P7WnV9yZbZST_mkX-rceard7iZ6g"
@@ -42,6 +47,17 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     <html lang="en">
       <head>
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7770398139421078" crossOrigin="anonymous" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "url": "https://pricewatch.top",
+              "logo": "https://pricewatch.top/logo.png"
+            })
+          }}
+        />
       </head>
       <body className="font-sans min-h-screen flex flex-col bg-cream text-charcoal selection:bg-brand selection:text-white">
         <header className="border-b-2 border-charcoal bg-white px-4 py-1.5 shadow-retro-sm lg:px-8">
@@ -85,8 +101,18 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         </div>
 
         <footer className="mt-8 border-t-2 border-charcoal py-8">
-          <div className="mx-auto w-full max-w-5xl px-4 text-center font-medium text-charcoal/60 sm:text-left">
-            &copy; {new Date().getFullYear()} Price Watch.
+          <div className="mx-auto flex w-full max-w-5xl flex-col items-center justify-between px-4 font-medium text-charcoal/60 sm:flex-row">
+            <div>
+              &copy; {new Date().getFullYear()} Price Watch.
+            </div>
+            <div className="mt-4 flex gap-6 sm:mt-0">
+              <Link href="/privacy" className="transition-colors hover:text-charcoal hover:underline">
+                Privacy Policy
+              </Link>
+              <Link href="/terms" className="transition-colors hover:text-charcoal hover:underline">
+                Terms of Service
+              </Link>
+            </div>
           </div>
         </footer>
       </body>
