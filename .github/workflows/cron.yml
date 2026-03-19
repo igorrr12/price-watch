@@ -1,0 +1,16 @@
+name: 3-Hour Price Scraper
+
+on:
+  schedule:
+    - cron: '0 */3 * * *' # Every 3 hours
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Price Check
+        run: |
+          curl -X POST "https://pricewatch.top/api/cron/check-prices" \
+          -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
+          -H "Content-Type: application/json"
