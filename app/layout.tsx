@@ -13,9 +13,13 @@ export const metadata = {
   description: "Save money on Amazon, ASOS, and Zara with Price Watch. Set your target price and get instant email alerts when prices drop. Simple and reliable price tracking.",
   keywords: ["price tracker", "amazon price alerts", "price drop monitor", "save money", "shopping tracker"],
   icons: {
-    icon: "/icon.png",
-    apple: "/apple-icon.png"
+    icon: [
+      { url: "/icon-48.png", sizes: "48x48", type: "image/png" },
+      { url: "/icon.png", sizes: "480x480", type: "image/png" },
+    ],
+    apple: "/apple-icon.png",
   },
+  manifest: "/manifest.json",
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -23,8 +27,8 @@ export const metadata = {
     siteName: "Price Watch",
     images: [{
       url: "/logo.png",
-      width: 1200,
-      height: 1200,
+      width: 500,
+      height: 500,
     }],
   },
   twitter: {

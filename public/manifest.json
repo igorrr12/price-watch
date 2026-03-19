@@ -1,0 +1,31 @@
+{
+  "name": "Price Watch",
+  "short_name": "Price Watch",
+  "description": "Reliable Price Tracker for Amazon, ASOS & Zara",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FCF9F2",
+  "theme_color": "#E95D3C",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/icon-48.png",
+      "type": "image/png",
+      "sizes": "48x48"
+    },
+    {
+      "src": "/icon.png",
+      "type": "image/png",
+      "sizes": "480x480"
+    },
+    {
+      "src": "/apple-icon.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}
