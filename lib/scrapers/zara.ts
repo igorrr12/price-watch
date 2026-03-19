@@ -3,11 +3,47 @@ import { getMeta, loadHtml, parseFirstPrice, firstText, firstAttr } from "./comm
 import { ScrapeError, type ScrapeResult } from "./types";
 
 export async function scrapeZara(url: string): Promise<ScrapeResult> {
-  const ajaxUrl = url.includes("?") ? `${url}&ajax=true` : `${url}?ajax=true`;
-  const html = await fetchHtml(ajaxUrl);
+  const idMatch = url.match(/-p(\d+)\.html/) || url.match(/[?&]v1=(\d+)/);
+  const productId = idMatch ? idMatch[1] : null;
   
-  // If it's the AJAX endpoint, it returns JSON
-  if (url.includes("ajax=true") || html.trim().startsWith("{")) {
+  let ajaxUrl = url.includes("?") ? `${url}&ajax=true` : `${url}?ajax=true`;
+  
+  if (productId) {
+    const regionMatch = url.match(/zara\.com\/([^\/]+\/[^\/]+)\//);
+    const region = regionMatch ? regionMatch[1] : "us/en";
+    const detailUrl = `https://www.zara.com/${region}/product/id/${productId}/extra-detail?ajax=true`;
+    try {
+      const detailHtml = await fetchHtml(detailUrl, {
+        "Accept": "application/json, text/plain, */*",
+        "X-Requested-With": "XMLHttpRequest",
+        "Referer": url.split("?")[0],
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "same-origin"
+      });
+      if (detailHtml.trim().startsWith("{")) {
+        const data = JSON.parse(detailHtml);
+        const name = data.name || data.analyticsData?.page?.productName;
+        let price = data.pricing?.price?.value ? data.pricing.price.value / 100 : null;
+        let currency = data.pricing?.price?.currency?.code;
+        
+        if (name && price) {
+          return { retailer: "zara", name, imageUrl: data.imageUrl || null, price, currency: currency || "USD" };
+        }
+      }
+    } catch (e) {
+      // ignore and fall back
+    }
+  }
+
+  const html = await fetchHtml(ajaxUrl, {
+    "Accept": "application/json, text/plain, */*",
+    "X-Requested-With": "XMLHttpRequest",
+    "Referer": url.split("?")[0]
+  });
+
+  // Try to parse JSON from main AJAX response
+  if (html.trim().startsWith("{")) {
     try {
       const data = JSON.parse(html);
       const productData = data.product || data;
@@ -97,6 +133,8 @@ export async function scrapeZara(url: string): Promise<ScrapeResult> {
   }
 
   if (!name || !price) {
+    console.log("Parsing failed. Name:", name, "Price:", price);
+    console.log("HTML First 1000 chars:", html.slice(0, 1000));
     throw new ScrapeError("missing_fields", "Could not parse Zara product.", {
       hasName: Boolean(name),
       hasPrice: Boolean(price)
