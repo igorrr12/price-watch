@@ -133,11 +133,15 @@ export async function scrapeZara(url: string): Promise<ScrapeResult> {
   }
 
   if (!name || !price) {
-    console.log("Parsing failed. Name:", name, "Price:", price);
-    console.log("HTML First 1000 chars:", html.slice(0, 1000));
-    throw new ScrapeError("missing_fields", "Could not parse Zara product.", {
+    const hasKey = Boolean(process.env.SCRAPER_API_KEY);
+    const msg = hasKey 
+      ? "Could not parse Zara product. The page structure might have changed."
+      : "Could not parse Zara product. Please add a SCRAPER_API_KEY to bypass Zara's protection.";
+    
+    throw new ScrapeError("missing_fields", msg, {
       hasName: Boolean(name),
-      hasPrice: Boolean(price)
+      hasPrice: Boolean(price),
+      hasApiKey: hasKey
     });
   }
 
