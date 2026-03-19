@@ -168,12 +168,18 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                 </ul>
               </div>
 
-              {/* Social/Copyright Col */}
+              {/* Contact Col */}
               <div>
-                <h4 className="text-xs font-black uppercase tracking-[0.2em] text-charcoal">Connect</h4>
+                <h4 className="text-xs font-black uppercase tracking-[0.2em] text-charcoal">Contact Us</h4>
                 <p className="mt-6 text-sm font-bold text-charcoal/60">
-                  Follow us for updates and shopping tips.
+                  Have questions or need help? Reach out to our team at:
                 </p>
+                <a 
+                  href="mailto:support@pricewatch.top" 
+                  className="mt-2 block text-sm font-black text-brand hover:underline"
+                >
+                  support@pricewatch.top
+                </a>
                 <p className="mt-8 text-[10px] font-bold uppercase tracking-widest text-charcoal/40">
                   &copy; {new Date().getFullYear()} PRICE WATCH.<br />
                   ALL RIGHTS RESERVED.
