@@ -205,7 +205,7 @@ export default function HomePage() {
           <div className="hidden md:block">
             <div className="aspect-square rounded-full border-4 border-dashed border-white/20 p-8 flex items-center justify-center">
               <div className="aspect-square w-full rounded-full bg-brand/20 p-8 flex items-center justify-center animate-pulse">
-                <div className="text-6xl font-black text-brand italic tracking-tighter">PRC WTCH</div>
+                <div className="text-4xl font-black text-brand italic tracking-tighter text-center leading-none">PRICE<br />WATCH</div>
               </div>
             </div>
           </div>
