@@ -133,15 +133,19 @@ export async function scrapeZara(url: string): Promise<ScrapeResult> {
   }
 
   if (!name || !price) {
-    const hasKey = Boolean(process.env.SCRAPER_API_KEY);
-    const msg = hasKey 
-      ? "Could not parse Zara product. The page structure might have changed."
-      : "Could not parse Zara product. Please add a SCRAPER_API_KEY to bypass Zara's protection.";
+    const hasScraperKey = Boolean(process.env.SCRAPER_API_KEY);
+    const hasFirecrawlKey = Boolean(process.env.FIRECRAWL_API_KEY);
+    
+    let msg = "Could not parse Zara product. The page structure might have changed.";
+    if (!hasScraperKey && !hasFirecrawlKey) {
+      msg = "Could not parse Zara product. Please add a FIRECRAWL_API_KEY or SCRAPER_API_KEY to bypass Zara's protection.";
+    }
     
     throw new ScrapeError("missing_fields", msg, {
       hasName: Boolean(name),
       hasPrice: Boolean(price),
-      hasApiKey: hasKey
+      hasScraperKey,
+      hasFirecrawlKey
     });
   }
 
