@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { scrapeProduct, ScrapeError } from "@/lib/scrapers";
 import { sendPriceAlertEmail, sendTrackingPausedEmail } from "@/lib/email/send";
+import { convertCurrency } from "@/lib/utils/currency";
 
 function requireCronAuth(req: Request) {
   const expected = process.env.CRON_SECRET;
@@ -31,6 +32,7 @@ export async function POST(req: Request) {
       id,
       email,
       target_price,
+      preferred_currency,
       active,
       consecutive_failures,
       product:products (
@@ -176,13 +178,21 @@ export async function POST(req: Request) {
     if (eligible.length > 0) {
       const results = await Promise.allSettled(
         eligible.map(async (t) => {
+          // Convert scraped price to the user's preferred currency for the email
+          const displayCurrency = t.preferred_currency || scraped!.currency || "USD";
+          const displayPrice = await convertCurrency(
+            scraped!.price,
+            scraped!.currency ?? displayCurrency,
+            displayCurrency
+          );
+
           await sendPriceAlertEmail({
             to: t.email,
             productName: scraped!.name,
             productUrl: productUrl,
             productImageUrl: scraped!.imageUrl,
-            currency: scraped!.currency,
-            currentPrice: scraped!.price,
+            currency: displayCurrency,
+            currentPrice: displayPrice,
             targetPrice: Number(t.target_price)
           });
           

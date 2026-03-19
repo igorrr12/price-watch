@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AdUnit } from "@/components/AdSense";
+import { COMMON_CURRENCIES } from "@/lib/utils/currencies";
 
 export default function HomePage() {
   const router = useRouter();
@@ -103,12 +104,9 @@ export default function HomePage() {
                   value={currency}
                   onChange={(e) => setCurrency(e.target.value)}
                 >
-                  <option value="USD">USD</option>
-                  <option value="EUR">EUR</option>
-                  <option value="GBP">GBP</option>
-                  <option value="PLN">PLN</option>
-                  <option value="CAD">CAD</option>
-                  <option value="SEK">SEK</option>
+                  {COMMON_CURRENCIES.map((c) => (
+                    <option key={c.code} value={c.code}>{c.code}</option>
+                  ))}
                 </select>
                 <input
                   type="number"
