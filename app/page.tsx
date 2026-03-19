@@ -135,6 +135,136 @@ export default function HomePage() {
           className="rounded-xl border-2 border-charcoal bg-white p-4 shadow-retro"
         />
       </div>
+
+      {/* How It Works Section */}
+      <div className="mt-20 space-y-12">
+        <div className="text-center">
+          <h2 className="text-3xl font-extrabold uppercase tracking-tight text-charcoal">
+            How it <span className="text-brand">works</span>
+          </h2>
+          <p className="mt-4 text-sm font-medium text-charcoal/60 uppercase tracking-widest">
+            Three simple steps to smarter shopping
+          </p>
+        </div>
+
+        <div className="grid gap-8 md:grid-cols-3">
+          {[
+            {
+              step: "01",
+              title: "Find your Product",
+              desc: "Copy the URL of any product from Amazon, ASOS, or Zara that you've been eyeing."
+            },
+            {
+              step: "02",
+              title: "Set your Price",
+              desc: "Paste the link here and tell us how much you want to pay. No account required for your first track."
+            },
+            {
+              step: "03",
+              title: "Get Alerted",
+              desc: "We monitor the price 24/7 and send you an instant email the moment it hits your target."
+            }
+          ].map((item, i) => (
+            <div key={i} className="relative rounded-xl border-2 border-charcoal bg-white p-8 shadow-retro transition-transform hover:-translate-y-1">
+              <div className="absolute -top-4 -left-4 border-2 border-charcoal bg-brand px-3 py-1 text-lg font-black text-white shadow-retro-sm">
+                {item.step}
+              </div>
+              <h3 className="mt-4 text-xl font-bold uppercase tracking-tight text-charcoal">{item.title}</h3>
+              <p className="mt-3 leading-relaxed text-charcoal/80">
+                {item.desc}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Why Use Us Section */}
+      <div className="mt-24 rounded-xl border-2 border-charcoal bg-charcoal p-8 text-white shadow-retro sm:p-12">
+        <div className="grid gap-12 md:grid-cols-2 md:items-center">
+          <div>
+            <h2 className="text-3xl font-extrabold uppercase tracking-tight">
+              Save <span className="text-brand">Smarter</span>, Not Harder.
+            </h2>
+            <p className="mt-6 text-lg leading-relaxed text-white/80">
+              Prices on major retailers like Amazon can change multiple times a day. Retailers use dynamic pricing algorithms to maximize profit, but you can beat them at their own game.
+            </p>
+            <div className="mt-8 space-y-4">
+              {[
+                "24/7 Automated Monitoring",
+                "Instant Email Notifications",
+                "Price History Tracking",
+                "Multiple Retailer Support"
+              ].map((feature, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="h-2 w-2 bg-brand" />
+                  <span className="font-bold uppercase tracking-wide">{feature}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="hidden md:block">
+            <div className="aspect-square rounded-full border-4 border-dashed border-white/20 p-8 flex items-center justify-center">
+              <div className="aspect-square w-full rounded-full bg-brand/20 p-8 flex items-center justify-center animate-pulse">
+                <div className="text-6xl font-black text-brand italic tracking-tighter">PRC WTCH</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Supported Retailers */}
+      <div className="mt-24">
+        <div className="mb-10 text-center">
+          <h2 className="text-3xl font-extrabold uppercase tracking-tight text-charcoal">
+            Supported <span className="text-brand">Retailers</span>
+          </h2>
+        </div>
+        <div className="flex flex-wrap justify-center gap-6">
+          {[
+            { name: "Amazon", regions: "US, UK, DE, FR, IT, ES, CA" },
+            { name: "ASOS", regions: "Global" },
+            { name: "Zara", regions: "Global" }
+          ].map((retailer, i) => (
+            <div key={i} className="flex-1 min-w-[200px] rounded-xl border-2 border-charcoal bg-white p-6 shadow-retro-sm text-center">
+              <div className="text-xl font-black uppercase tracking-widest text-charcoal">{retailer.name}</div>
+              <div className="mt-2 text-xs font-bold uppercase text-charcoal/40 tracking-widest">{retailer.regions}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* FAQ Section */}
+      <div className="mt-24 mb-12 max-w-2xl mx-auto">
+        <h2 className="mb-10 text-center text-3xl font-extrabold uppercase tracking-tight text-charcoal">
+          Frequently Asked <span className="text-brand">Questions</span>
+        </h2>
+        <div className="space-y-4">
+          {[
+            {
+              q: "Is Price Watch free?",
+              a: "Yes! Currently, you can track your products for free. We monetize through ads and affiliate links to keep the lights on."
+            },
+            {
+              q: "How often do you check prices?",
+              a: "We check prices several times a day to ensure you don't miss a flash sale or a quick price drop."
+            },
+            {
+              q: "Do I need an account?",
+              a: "No account is needed to start tracking your first product. We'll simply ask for your email to send alerts. If you want to manage multiple trackers, you can create a free account."
+            },
+            {
+              q: "What products can I track?",
+              a: "You can track any valid product URL from our supported retailers. From electronics and clothing to home goods."
+            }
+          ].map((item, i) => (
+            <div key={i} className="rounded-lg border-2 border-charcoal bg-white p-5 shadow-retro-sm">
+              <h3 className="text-lg font-bold text-charcoal">{item.q}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-charcoal/70">{item.a}</p>
+            </div>
+          ))}
+        </div>
+      </div>
     </section>
+
   );
 }

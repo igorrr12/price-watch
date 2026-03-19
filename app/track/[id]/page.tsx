@@ -134,7 +134,47 @@ export default async function TrackPage({ params }: { params: Promise<{ id: stri
           <div className="rounded-xl border-2 border-charcoal bg-white p-6 shadow-retro">
             <PriceLineChart points={(points ?? []) as unknown as PricePoint[]} currency={product.currency} />
           </div>
+
+          <div className="rounded-xl border-2 border-charcoal bg-white p-8 shadow-retro">
+            <h2 className="text-2xl font-extrabold uppercase tracking-tight text-charcoal">How to use this tracker</h2>
+            <div className="mt-6 grid gap-8 sm:grid-cols-2">
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold text-charcoal uppercase tracking-wide">Analysis</h3>
+                <p className="text-sm leading-relaxed text-charcoal/70">
+                  The chart above shows the price fluctuations for <strong>{product.name}</strong> over time. Look for patterns in price drops—many retailers follow seasonal or weekly cycles.
+                </p>
+              </div>
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold text-charcoal uppercase tracking-wide">Strategy</h3>
+                <p className="text-sm leading-relaxed text-charcoal/70">
+                  By setting a target price based on historical lows, you can ensure you never overpay. We recommend setting your target slightly above the historical low to increase your chances of a successful hit.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-10 border-t-2 border-charcoal/5 pt-10">
+              <h2 className="text-2xl font-extrabold uppercase tracking-tight text-charcoal">Why track prices on {product.retailer}?</h2>
+              <p className="mt-4 leading-relaxed text-charcoal/70">
+                {product.retailer} uses sophisticated dynamic pricing. This means the price of <strong>{product.name}</strong> can change based on demand, stock levels, and competitor pricing. Price tracking allows you to sit back and wait for the algorithm to work in your favor.
+              </p>
+              <ul className="mt-6 space-y-3 text-sm font-medium text-charcoal/80">
+                <li className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 bg-brand" />
+                  Save up to 30-50% on average by catching flash sales.
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 bg-brand" />
+                  Avoid "fake" discounts during major sale events.
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 bg-brand" />
+                  Get notified the second a price drop happens.
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
+
 
         <aside className="h-max rounded-xl border-2 border-charcoal bg-white p-6 shadow-retro">
           <div className="text-xl font-extrabold uppercase tracking-tight text-charcoal">Product</div>
