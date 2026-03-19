@@ -10,6 +10,7 @@ export default function HomePage() {
   const [email, setEmail] = useState("");
   const [targetPrice, setTargetPrice] = useState("");
   const [loading, setLoading] = useState(false);
+  const [currency, setCurrency] = useState("USD");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -31,7 +32,8 @@ export default function HomePage() {
         body: JSON.stringify({
           url,
           email,
-          targetPrice: Number(targetPrice)
+          targetPrice: Number(targetPrice),
+          preferredCurrency: currency
         })
       });
       const data = await res.json();
@@ -95,14 +97,28 @@ export default function HomePage() {
               <label className="mb-2 block text-sm font-bold uppercase tracking-wide text-charcoal">
                 Target price
               </label>
-              <input
-                type="number"
-                step="0.01"
-                placeholder="e.g. 49.99"
-                className="w-full rounded-none border-2 border-charcoal bg-cream px-3 py-3 font-medium text-charcoal shadow-retro-sm transition-all focus:translate-x-1 focus:translate-y-1 focus:shadow-none focus:outline-none"
-                value={targetPrice}
-                onChange={(e) => setTargetPrice(e.target.value)}
-              />
+              <div className="flex gap-2">
+                <select
+                  className="w-24 rounded-none border-2 border-charcoal bg-cream px-2 py-3 font-bold text-charcoal shadow-retro-sm transition-all focus:outline-none"
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                >
+                  <option value="USD">USD</option>
+                  <option value="EUR">EUR</option>
+                  <option value="GBP">GBP</option>
+                  <option value="PLN">PLN</option>
+                  <option value="CAD">CAD</option>
+                  <option value="SEK">SEK</option>
+                </select>
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="e.g. 49.99"
+                  className="flex-1 rounded-none border-2 border-charcoal bg-cream px-3 py-3 font-medium text-charcoal shadow-retro-sm transition-all focus:translate-x-1 focus:translate-y-1 focus:shadow-none focus:outline-none"
+                  value={targetPrice}
+                  onChange={(e) => setTargetPrice(e.target.value)}
+                />
+              </div>
             </div>
           </div>
           <button

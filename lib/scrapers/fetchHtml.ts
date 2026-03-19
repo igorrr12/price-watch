@@ -6,9 +6,12 @@ export async function fetchHtml(url: string): Promise<string> {
     res = await fetch(url, {
       // Many retailers show different HTML without a UA.
       headers: {
-        "user-agent":
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
-        "accept-language": "en-US,en;q=0.9"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "en-US,en;q=0.9",
+        "X-Requested-With": "XMLHttpRequest",
+        "Referer": url.split("?")[0],
+        "Cache-Control": "no-cache"
       },
       redirect: "follow",
       cache: "no-store"
