@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from "@/lib/supabaseServer";
 import { normalizeUrl, detectRetailer, getHostname } from "@/lib/utils/url";
 import { scrapeProduct, ScrapeError } from "@/lib/scrapers";
 import { sendPriceAlertEmail } from "@/lib/email/send";
+import { convertCurrency } from "@/lib/utils/currency";
 
 type TrackRequest = {
   url: string;
@@ -16,20 +17,6 @@ function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim().toLowerCase());
 }
 
-async function convertCurrency(amount: number, from: string, to: string): Promise<number> {
-  if (from.toUpperCase() === to.toUpperCase()) return amount;
-  try {
-    const res = await fetch(`https://open.er-api.com/v6/latest/${from.toUpperCase()}`);
-    if (!res.ok) throw new Error("Rate fetch failed");
-    const data = await res.json() as { rates: Record<string, number> };
-    const rate = data.rates[to.toUpperCase()];
-    if (!rate) throw new Error(`No rate for ${to}`);
-    return Math.round(amount * rate * 100) / 100;
-  } catch (e) {
-    console.warn("Currency conversion failed, using original amount:", e);
-    return amount;
-  }
-}
 
 export async function POST(req: Request) {
   let body: TrackRequest;
@@ -197,14 +184,22 @@ export async function POST(req: Request) {
   // If the price is already at or below target, trigger the alert immediately!
   if (product.last_price != null && finalTargetPrice >= product.last_price) {
     try {
+      const displayCurrency = preferredCurrency ?? finalCurrency ?? "USD";
+      // Convert the scraped price to the user's preferred currency for display
+      const displayPrice = await convertCurrency(
+        product.last_price,
+        finalCurrency ?? displayCurrency,
+        displayCurrency
+      );
+
       await sendPriceAlertEmail({
         to: email,
         productName: product.name,
         productUrl: url,
         productImageUrl: product.image_url,
-        currency: product.currency,
-        currentPrice: product.last_price,
-        targetPrice: targetPrice
+        currency: displayCurrency,
+        currentPrice: displayPrice,
+        targetPrice: targetPrice          // user-entered, already in preferredCurrency
       });
 
       // Disable the tracker so we don't spam them when the cron job runs
