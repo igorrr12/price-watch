@@ -168,18 +168,13 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                 </ul>
               </div>
 
-              {/* Social Col */}
+              {/* Social/Copyright Col */}
               <div>
                 <h4 className="text-xs font-black uppercase tracking-[0.2em] text-charcoal">Connect</h4>
-                <div className="mt-6 flex gap-4">
-                  <span className="flex h-10 w-10 items-center justify-center border-2 border-charcoal bg-white shadow-retro-sm transition-transform hover:-translate-y-1 cursor-not-allowed grayscale">
-                    <span className="text-sm font-black">X</span>
-                  </span>
-                  <span className="flex h-10 w-10 items-center justify-center border-2 border-charcoal bg-white shadow-retro-sm transition-transform hover:-translate-y-1 cursor-not-allowed grayscale">
-                    <span className="text-sm font-black">GH</span>
-                  </span>
-                </div>
-                <p className="mt-6 text-[10px] font-bold uppercase tracking-widest text-charcoal/40">
+                <p className="mt-6 text-sm font-bold text-charcoal/60">
+                  Follow us for updates and shopping tips.
+                </p>
+                <p className="mt-8 text-[10px] font-bold uppercase tracking-widest text-charcoal/40">
                   &copy; {new Date().getFullYear()} PRICE WATCH.<br />
                   ALL RIGHTS RESERVED.
                 </p>
