@@ -3,7 +3,23 @@ import { getMeta, loadHtml, parseFirstPrice, firstText, firstAttr } from "./comm
 import { ScrapeError, type ScrapeResult } from "./types";
 
 export async function scrapeZara(url: string): Promise<ScrapeResult> {
-  const idMatch = url.match(/-p(\d+)\.html/) || url.match(/[?&]v1=(\d+)/);
+  const firecrawlApiKey = process.env.FIRECRAWL_API_KEY;
+  const scraperApiKey = process.env.SCRAPER_API_KEY;
+
+  // 1. If we have Firecrawl, try the plain URL first as it's more reliable
+  if (firecrawlApiKey) {
+    try {
+      const html = await fetchHtml(url);
+      const result = parseZaraHtml(html, url);
+      if (result) return result;
+    } catch (e) {
+      // ignore and fall back to AJAX
+    }
+  }
+
+  // 2. Fallback to AJAX-based scraping (original logic)
+  // Prioritize v1 parameter as it's the internal ID used by Zara's AJAX API
+  const idMatch = url.match(/[?&]v1=(\d+)/) || url.match(/-p(\d+)\.html/);
   const productId = idMatch ? idMatch[1] : null;
   
   let ajaxUrl = url.includes("?") ? `${url}&ajax=true` : `${url}?ajax=true`;
@@ -16,10 +32,7 @@ export async function scrapeZara(url: string): Promise<ScrapeResult> {
       const detailHtml = await fetchHtml(detailUrl, {
         "Accept": "application/json, text/plain, */*",
         "X-Requested-With": "XMLHttpRequest",
-        "Referer": url.split("?")[0],
-        "sec-fetch-dest": "empty",
-        "sec-fetch-mode": "cors",
-        "sec-fetch-site": "same-origin"
+        "Referer": url.split("?")[0]
       });
       if (detailHtml.trim().startsWith("{")) {
         const data = JSON.parse(detailHtml);
@@ -74,10 +87,29 @@ export async function scrapeZara(url: string): Promise<ScrapeResult> {
     }
   }
 
+  const finalResult = parseZaraHtml(html, url);
+  if (finalResult) return finalResult;
+
+  const hasScraperKey = Boolean(scraperApiKey);
+  const hasFirecrawlKey = Boolean(firecrawlApiKey);
+  
+  let msg = "Could not parse Zara product. The page structure might have changed.";
+  if (!hasScraperKey && !hasFirecrawlKey) {
+    msg = "Could not parse Zara product. Please add a FIRECRAWL_API_KEY or SCRAPER_API_KEY to bypass Zara's protection.";
+  }
+  
+  throw new ScrapeError("missing_fields", msg, {
+    hasScraperKey,
+    hasFirecrawlKey
+  });
+}
+
+function parseZaraHtml(html: string, url: string): ScrapeResult | null {
   const $ = loadHtml(html);
 
   const name =
     firstText($, [
+      '.product-detail-info__header-name',
       'h1[data-qa="product-name"]',
       'h1[class*="product"]',
       "h1"
@@ -121,6 +153,7 @@ export async function scrapeZara(url: string): Promise<ScrapeResult> {
 
   if (price == null) {
     const parsed = parseFirstPrice($, [
+      '.price-current__amount',
       '[data-qa="product-price"]',
       '[data-qa="price"]',
       "span.price__amount",
@@ -132,22 +165,7 @@ export async function scrapeZara(url: string): Promise<ScrapeResult> {
     }
   }
 
-  if (!name || !price) {
-    const hasScraperKey = Boolean(process.env.SCRAPER_API_KEY);
-    const hasFirecrawlKey = Boolean(process.env.FIRECRAWL_API_KEY);
-    
-    let msg = "Could not parse Zara product. The page structure might have changed.";
-    if (!hasScraperKey && !hasFirecrawlKey) {
-      msg = "Could not parse Zara product. Please add a FIRECRAWL_API_KEY or SCRAPER_API_KEY to bypass Zara's protection.";
-    }
-    
-    throw new ScrapeError("missing_fields", msg, {
-      hasName: Boolean(name),
-      hasPrice: Boolean(price),
-      hasScraperKey,
-      hasFirecrawlKey
-    });
-  }
+  if (!name || !price) return null;
 
   return {
     retailer: "zara",

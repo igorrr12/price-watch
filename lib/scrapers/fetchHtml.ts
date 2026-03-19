@@ -6,7 +6,7 @@ export async function fetchHtml(url: string, customHeaders?: Record<string, stri
   const firecrawlApiKey = process.env.FIRECRAWL_API_KEY;
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s for proxies/firecrawl
+  const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s for proxies/firecrawl
 
   try {
     // 1. Try Firecrawl first if available for hard retailers
@@ -29,7 +29,7 @@ export async function fetchHtml(url: string, customHeaders?: Record<string, stri
           }
         }
       } catch (e) {
-        console.error("Firecrawl attempt failed, falling back...", e);
+        // ignore and fall back
       }
     }
 
@@ -93,4 +93,3 @@ export async function fetchHtml(url: string, customHeaders?: Record<string, stri
     clearTimeout(timeoutId);
   }
 }
-
