@@ -78,12 +78,21 @@ export default async function TrackPage({ params }: { params: Promise<{ id: stri
     "name": product.name,
     "image": product.image_url,
     "description": `Price tracking and alerts for ${product.name} on ${product.domain}.`,
+    "brand": {
+      "@type": "Brand",
+      "name": product.retailer
+    },
     "offers": {
       "@type": "Offer",
       "price": product.last_price,
       "priceCurrency": product.currency,
       "url": product.url,
-      "availability": "https://schema.org/InStock" // Best effort, most tracked items are in stock
+      "itemCondition": "https://schema.org/NewCondition",
+      "availability": "https://schema.org/InStock",
+      "seller": {
+        "@type": "Organization",
+        "name": product.retailer
+      }
     }
   };
 
@@ -93,6 +102,16 @@ export default async function TrackPage({ params }: { params: Promise<{ id: stri
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      
+      {/* Breadcrumbs */}
+      <nav className="mb-6 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-charcoal/40">
+        <Link href="/" className="hover:text-brand transition-colors">Home</Link>
+        <span>/</span>
+        <span className="text-charcoal/60">Track</span>
+        <span>/</span>
+        <span className="text-charcoal truncate max-w-[200px]">{product.name || "Price History"}</span>
+      </nav>
+
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-3xl font-extrabold uppercase tracking-tight text-charcoal">

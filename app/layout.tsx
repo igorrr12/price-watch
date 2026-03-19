@@ -4,6 +4,12 @@ import Link from "next/link";
 import { AdSenseScript } from "@/components/AdSense";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
 import { Logo } from "@/components/Logo";
+import { Outfit } from "next/font/google";
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-outfit",
+});
 
 export const metadata = {
   title: {
@@ -47,8 +53,22 @@ export const dynamic = "force-dynamic";
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://pricewatch.top"
+      }
+    ]
+  };
+
   return (
-    <html lang="en">
+    <html lang="en" className={outfit.variable}>
       <head>
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7770398139421078" crossOrigin="anonymous" />
         <script
@@ -62,15 +82,19 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
             })
           }}
         />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        />
       </head>
-      <body className="font-sans min-h-screen flex flex-col bg-cream text-charcoal selection:bg-brand selection:text-white">
+      <body className="font-outfit min-h-screen flex flex-col bg-cream text-charcoal selection:bg-brand selection:text-white">
         <header className="border-b-2 border-charcoal bg-white px-4 py-1.5 shadow-retro-sm lg:px-8">
           <div className="mx-auto flex max-w-7xl items-center justify-between">
             <div className="flex items-center gap-4">
               <Link href="/" className="block w-40 shrink-0 lg:w-52">
                 <Logo className="h-auto w-full transition-transform hover:scale-105" />
               </Link>
-              <span className="hidden text-sm font-medium tracking-wider text-charcoal/60 md:inline-block">
+              <span className="hidden text-sm font-medium tracking-wider text-charcoal/60 md:inline-block uppercase tracking-widest">
                 Track drops on Amazon, ASOS & Zara
               </span>
             </div>
@@ -104,18 +128,62 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           <main className="flex-1">{children}</main>
         </div>
 
-        <footer className="mt-8 border-t-2 border-charcoal py-8">
-          <div className="mx-auto flex w-full max-w-5xl flex-col items-center justify-between px-4 font-medium text-charcoal/60 sm:flex-row">
-            <div>
-              &copy; {new Date().getFullYear()} Price Watch.
-            </div>
-            <div className="mt-4 flex gap-6 sm:mt-0">
-              <Link href="/privacy" className="transition-colors hover:text-charcoal hover:underline">
-                Privacy Policy
-              </Link>
-              <Link href="/terms" className="transition-colors hover:text-charcoal hover:underline">
-                Terms of Service
-              </Link>
+        <footer className="mt-12 border-t-2 border-charcoal bg-white py-12">
+          <div className="mx-auto max-w-7xl px-4 lg:px-8">
+            <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
+              {/* Brand Col */}
+              <div className="space-y-6">
+                <Link href="/" className="block w-48">
+                  <Logo className="h-auto w-full" />
+                </Link>
+                <p className="max-w-xs text-sm font-medium leading-relaxed text-charcoal/60">
+                  The most reliable price tracker for your favorite retailers. Save money with instant price drop alerts delivered straight to your inbox.
+                </p>
+              </div>
+
+              {/* Stores Col */}
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-[0.2em] text-charcoal">Supported Stores</h4>
+                <ul className="mt-6 space-y-4 text-sm font-bold text-charcoal/60">
+                  <li><span className="cursor-default hover:text-brand transition-colors">Amazon Global</span></li>
+                  <li><span className="cursor-default hover:text-brand transition-colors">ASOS</span></li>
+                  <li><span className="cursor-default hover:text-brand transition-colors">Zara</span></li>
+                  <li><span className="text-[10px] uppercase bg-brand/10 text-brand px-2 py-0.5 rounded">More coming soon</span></li>
+                </ul>
+              </div>
+
+              {/* Legal Col */}
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-[0.2em] text-charcoal">Information</h4>
+                <ul className="mt-6 space-y-4 text-sm font-bold text-charcoal/60">
+                  <li>
+                    <Link href="/privacy" className="hover:text-brand transition-colors">Privacy Policy</Link>
+                  </li>
+                  <li>
+                    <Link href="/terms" className="hover:text-brand transition-colors">Terms of Service</Link>
+                  </li>
+                  <li>
+                    <a href="mailto:support@pricewatch.top" className="hover:text-brand transition-colors">Contact Support</a>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Social Col */}
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-[0.2em] text-charcoal">Connect</h4>
+                <div className="mt-6 flex gap-4">
+                  <span className="flex h-10 w-10 items-center justify-center border-2 border-charcoal bg-white shadow-retro-sm transition-transform hover:-translate-y-1 cursor-not-allowed grayscale">
+                    <span className="text-sm font-black">X</span>
+                  </span>
+                  <span className="flex h-10 w-10 items-center justify-center border-2 border-charcoal bg-white shadow-retro-sm transition-transform hover:-translate-y-1 cursor-not-allowed grayscale">
+                    <span className="text-sm font-black">GH</span>
+                  </span>
+                </div>
+                <p className="mt-6 text-[10px] font-bold uppercase tracking-widest text-charcoal/40">
+                  &copy; {new Date().getFullYear()} PRICE WATCH.<br />
+                  ALL RIGHTS RESERVED.
+                </p>
+              </div>
             </div>
           </div>
         </footer>
