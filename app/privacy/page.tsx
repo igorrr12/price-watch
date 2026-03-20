@@ -1,4 +1,10 @@
 import Link from "next/link";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description: "Learn how Price Watch handles your personal information and protects your privacy.",
+};
 
 export default function PrivacyPage() {
   return (

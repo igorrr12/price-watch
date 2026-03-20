@@ -1,4 +1,10 @@
 import Link from "next/link";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Terms of Service",
+  description: "Read the Terms of Service for using Price Watch tracker.",
+};
 
 export default function TermsPage() {
   return (

@@ -157,7 +157,7 @@ export default function HomePage() {
             How it <span className="text-brand">works</span>
           </h2>
           <p className="mt-4 text-sm font-medium text-charcoal/60 uppercase tracking-widest">
-            Three simple steps to smarter shopping
+            Three simple steps to better shopping
           </p>
         </div>
 
@@ -197,7 +197,7 @@ export default function HomePage() {
         <div className="grid gap-12 md:grid-cols-2 md:items-center">
           <div>
             <h2 className="text-3xl font-extrabold uppercase tracking-tight">
-              Save <span className="text-brand">Smarter</span>, Not Harder.
+              Save <span className="text-brand">More</span>, Not harder.
             </h2>
             <p className="mt-6 text-lg leading-relaxed text-white/80">
               Prices on major retailers like Amazon can change multiple times a day. Retailers use dynamic pricing algorithms to maximize profit, but you can beat them at their own game.

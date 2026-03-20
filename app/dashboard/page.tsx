@@ -5,6 +5,12 @@ import { linkAnonymousTrackersToUser } from "@/lib/linkTrackers";
 import { deleteTracker, renewTracker } from "./actions";
 import { formatPrice } from "@/lib/utils/format";
 import { ConvertedPrice } from "@/components/ConvertedPrice";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Dashboard",
+  description: "Manage your tracked products and price alerts.",
+};
 
 type TrackerRow = {
   id: string;

@@ -13,7 +13,7 @@ const outfit = Outfit({
 
 export const metadata = {
   title: {
-    default: "Price Watch - Reliable Price Tracker for Amazon, ASOS & Zara",
+    default: "Price Watch - Track Prices on Amazon, ASOS & Zara",
     template: "%s | Price Watch"
   },
   description: "Save money on Amazon, ASOS, and Zara with Price Watch. Set your target price and get instant email alerts when prices drop. Simple and reliable price tracking.",
@@ -39,7 +39,7 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Price Watch - Reliable Price Tracker",
+    title: "Price Watch - Price Tracker",
     description: "Track prices and save money on Amazon, ASOS, and Zara with email alerts.",
     images: ["/logo.png"]
   },
